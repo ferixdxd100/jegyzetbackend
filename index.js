@@ -1,3 +1,6 @@
+require ("dotenv").config()
+
+
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
@@ -6,10 +9,9 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 // --- config ---
-const PORT = 22015
-const HOST = 'nodejs2.dszcbaross.edu.hu'
-const JWT_SECRET = 'jegyzet_titkos_kulcs'
-const JWT_EXPIRES_IN = '7d'
+const PORT = process.env.PORT;
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 const COOKIE_NAME = 'auth_token'
 
 // --- cookie beállítás ---
@@ -23,11 +25,11 @@ const COOKIE_OPTS = {
 
 // --- adatbázis beállítás ---
 const db = mysql.createPool({
-    host: 'localhost',
-    port: '3306',
-    user: 'container',
-    password: 'container',
-    database: 'jegyzetapp'
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME   
 })
 
 // --- APP ---
@@ -36,7 +38,7 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: ['http://nodejs2.dszcbaross.edu.hu:22015', 'https://nodejs215.dszcbaross.edu.hu'],
+    origin: 'http://localhost:5173',
     credentials: true
 }))
 
@@ -106,9 +108,12 @@ app.post('/api/login', async (req, res) => {
 })
 
 app.post('/api/logout', auth, (req, res) => {
-    res.clearCookie(COOKIE_NAME, { path: '/' })
+    res.clearCookie(COOKIE_NAME, { httpOnly: true,
+        secure: true,
+        sameSite: 'none',path: '/' })
     return res.status(200).json({ message: "Sikeres kijelentkezés" })
 })
+
 
 app.get('/api/me', auth, (req, res) => {
     return res.status(200).json(req.user)
@@ -233,5 +238,5 @@ app.delete('/api/fiokom', auth, async (req, res) => {
 
 // --- szerver elindítása ---
 app.listen(PORT, () => {
-    console.log(`API fut: http://${HOST}:${PORT}/`)
+    console.log(`API fut: http://localhost:${PORT}/`)
 })
