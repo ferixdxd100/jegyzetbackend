@@ -6,7 +6,8 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 // --- config ---
-const PORT = 3000
+const PORT = 22015
+const HOST = 'nodejs2.dszcbaross.edu.hu'
 const JWT_SECRET = 'jegyzet_titkos_kulcs'
 const JWT_EXPIRES_IN = '7d'
 const COOKIE_NAME = 'auth_token'
@@ -14,8 +15,8 @@ const COOKIE_NAME = 'auth_token'
 // --- cookie beállítás ---
 const COOKIE_OPTS = {
     httpOnly: true,
-    secure: false,
-    sameSite: 'lax',
+    secure: true,
+    sameSite: 'none',
     path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000
 }
@@ -24,8 +25,8 @@ const COOKIE_OPTS = {
 const db = mysql.createPool({
     host: 'localhost',
     port: '3306',
-    user: 'root',
-    password: '',
+    user: 'container',
+    password: 'container',
     database: 'jegyzetapp'
 })
 
@@ -35,7 +36,7 @@ const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://nodejs2.dszcbaross.edu.hu:22015', 'https://nodejs215.dszcbaross.edu.hu'],
     credentials: true
 }))
 
@@ -232,5 +233,5 @@ app.delete('/api/fiokom', auth, async (req, res) => {
 
 // --- szerver elindítása ---
 app.listen(PORT, () => {
-    console.log(`API fut: http://localhost:${PORT}/`)
+    console.log(`API fut: http://${HOST}:${PORT}/`)
 })
